@@ -1,0 +1,245 @@
+/*    page: {
+     minHeight: 100vh',
+     // background: #e8e8f0',
+     // background: linear-gradient(135deg, #0a0a0f 0%, #12121e 50%, #0d0d1a 100%)',
+     // background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, #7bb8e4 50%, #298ad0 100%)',
+     color: #e8e8f0',
+     fontFamily: "Noto Sans KR", "Helvetica Neue", sans-serif',
+     padding: 40px 20px',
+   }, */
+  .detail-container {
+    max-Width: 1050px;
+    margin: 0 auto
+  }
+
+  /* 배지 */
+  .detail-badge {
+    display: inline-block;
+    /* // background: linear-gradient(90deg, #c8a96e, #e8c98e)', */
+    background: lightblue;
+    color: #0a0a0f;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 10px 14px;
+    border-radius: 2px;
+    /* // marginBottom: 16px', */
+  }
+
+  /* 제목 */
+  .detail-title {
+    font-size: 36px;
+    font-weight: 800;
+    color: black;             /*  '#ffffff' */
+    margin: 0 0 6px 0;
+    letter-spacing: -0.5px;
+    line-height: 1.2
+  }
+
+  /* 별점 영역 */
+  .detail-rating-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 30px;
+  }
+
+  .detail-rating-stars {
+    color: red;             /* '#c8a96e' */
+    font-size: 18px;
+  }
+
+  .detail-rating-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: blue;            //* '#c8a96e' */
+  }
+
+  .detail-rating-max {
+    color: #666;
+    font-size: 20px;
+    font-weight: bold;
+  }
+
+  /* 구분선 */
+  .detail-divider {
+    border: none;
+    border-top: 1px solid rgba(200, 169, 110, 0.2);
+    margin: 28px 0;
+  }
+
+  /* 기본 정보 그리드 */
+  .detail-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .detail-info-card {
+    /* background: rgba(255,255,255,0.04)', */
+    /* border: 1px solid rgba(255,255,255,0.08)', */
+    background: linear-gradient(160deg, #ffffff 0%, #f4f4f6 100%);
+    /* border: 1px solid black', */
+    border-radius: 12px;
+    padding: 18px 22px;
+    box-shadow: 
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 -1px 0 rgba(0,0,0,0.5) inset,
+      0 2px 10px rgba(0,0,0,0.5),
+      0 1px 3px rgba(0,0,0,0.4);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    /* transition: transform 0.15s, box-shadow 0.15s; */
+  }
+  
+  .detail-info-label {
+    font-size: 17px;
+    font-weight: 600;
+    color: blue;              /* '#c8a96e'*/
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .detail-info-value {
+    font-size: 18px;
+    font-weight: 500;
+    color: black;              /* '#f0f0f8' */
+  }
+
+  /* 출연진 · 줄거리 · 예고편 카드 */
+  .detail-full-card {
+    background: rgba(255,255,255,0.04);
+    /* border: 1px solid rgba(255,255,255,0.08)', */
+    /* border: 1px solid black', */
+    border-radius: 12px;
+    padding: 22px 26px;
+    margin-bottom: 16px;
+    box-shadow: 
+      0 1px 0 rgba(255,255,255,0.12) inset,
+      0 -1px 0 rgba(0,0,0,0.5) inset,
+      0 2px 10px rgba(0,0,0,0.5),
+      0 1px 3px rgba(0,0,0,0.4) 
+  }
+
+  .detail-info-value--mt {
+    margin-top: 6px;
+  }
+
+  /* 줄거리 텍스트 */
+  .detail-story-text {
+    font-size: 18px;
+    line-height: 1.9;
+    color: black;                     /* '#b0b0c8' */
+    white-space: pre-line;
+    margin: 0
+  }
+
+  /* 예고편 링크 */
+  .detail-trailer-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: black;                      /* '#c8a96e; */
+    text-decoration: none;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    word-break: break-all;
+    transition: color 0.2s',
+  }
+
+  .detail-trailer-link:hover {
+    color: #e8c98e;
+    text-decoration: underline;
+  }
+
+  /* 버튼 그룹 */
+  .detail-button-group {
+    display: flex;
+    gap: 12px;
+    margin-top: 36px;
+    width: 50%;
+    margin: 36px auto 0;
+  }
+
+  /* 버튼 공통 */
+  .detail-btn {
+    flex: 1;
+    box-sizing: border-box;
+    padding: 14px 24px;
+    background: lightblue;
+    color: black;
+    border: 3px solid #5bb8d4;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+/* .detail-btn--primary {
+  font-weight: 700;
+}
+
+.detail-btn--secondary {
+  font-weight: 600;
+} */
+
+.detail-btn:hover {
+  background: #5bb8d4;
+  color: #ffffff;
+  border: 3px solid #5bb8d4;;
+}
+
+  /* btnPrimary {
+    flex: 1,
+    width: 50,
+    padding: 14px 24px',
+    // background: linear-gradient(135deg, #c8a96e, #e8c98e)',
+    background: lightblue',
+    color: black',
+    border: 3px solid #5bb8d4',
+    borderRadius: 10px',
+    fontWeight: 700',
+    fontSize: 18px',
+    letterSpacing: 0.5px',
+    cursor: pointer',
+    transition: background 0.2s, color 0.2s',
+  }
+
+  btnSecondary {
+    flex: 1,
+    padding: 14px 24px',
+    background: lightblue',
+    color: black', //'#e8e8f0',
+    // border: 1px solid rgba(255,255,255,0.2)',
+    border: 3px solid #5bb8d4',
+    borderRadius: 10px',
+    fontWeight: 600',
+    fontSize: 18px',
+    letterSpacing: 0.5px',
+    cursor: pointer',
+    transition: border-color 0.2s, color 0.2s',
+  } */
+
+/* 반개 별점 */
+.detail-half-star {
+  position: relative;
+  display: inline-block;
+  width: 1em;
+}
+
+.detail-half-star__bg {
+  color: red;
+}
+
+.detail-half-star__fill {
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+  color: red;
+}

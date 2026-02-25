@@ -1,0 +1,113 @@
+import { useState, useEffect } from 'react';
+import { Table } from 'react-bootstrap';
+import { info } from './info.js'
+import {useParams, Routes, Route, useNavigate } from "react-router-dom";
+import Admin from './admin.jsx';
+import axios from 'axios';
+
+function detail({setImgNo, setAction}){
+
+let {id} = useParams();   // 영화 데이터 식별 번호
+let navigate = new useNavigate();
+// let [action, setAction] = new useState(''); 
+
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@ mySql을 이용한 데이터 조회  @@@@@@@@@@@@@@@@@@@@@@@  
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+     // 파라미터 세팅
+    const [movies, setMovies] = useState([]);       // 영화목록
+
+    // 이미지 목록 불러오기
+    useEffect(() => {
+    //   setImgNo(Number(id));    // 페이지 로드될 때 imgNo 동기화
+      fetchImages();           // 이미지 목록 불러오기
+    }, [id, setImgNo]);        // 의존성 배열에 setImgNo도 추가
+
+    const fetchImages = async () => {
+      try {
+        const response = await axios.get('http://localhost:5000/api/images');
+        const movie = response.data;
+        // setMovies(movie[Number(id)]);
+
+        // id로 영화 찾기 (배열 인덱스가 아닌 movie.id로 검색)
+        const foundMovie = movie.find(movie => movie.id === Number(id));
+        
+        if (foundMovie) {
+            setMovies(foundMovie);
+            setImgNo(foundMovie.id);
+        } else {
+            console.error('해당 ID의 영화를 찾을 수 없습니다.');
+        }        
+      } catch (error) {
+        console.error('영화 정보 불러오기 실패:', error);
+      }
+    };
+
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  
+    return(
+    <div>
+        <h2 className="section-title">영화정보</h2>
+        <Table>
+            <thead>
+                <tr>
+                    <th>제목</th>
+                    <th>평점</th>                    
+                    <th>장르</th>
+                    <th>개봉일</th>
+                    <th>런닝타임</th>
+                    <th>감독</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{movies.title}</td>
+                    <td>{movies.rating}</td>                    
+                    <td>{movies.genre}</td>
+                    <td>{movies.open_date}</td>
+                    <td>{movies.show_time}</td>
+                    <td>{movies.director}</td>
+                </tr>
+            </tbody>
+        </Table>
+
+        <Table>
+            <thead>
+                <tr>
+                    <th>출연진</th>
+                    <td>{movies.actor}</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>줄거리</th>
+                    <td style={{whiteSpace: 'pre-line'}}>{movies.story}</td>
+                </tr>
+            </tbody>
+        </Table>     
+
+        {/* 버튼 그룹 */}
+        <div className="flex gap-3 pt-4">
+            <button onClick={()=>{ setAction('mod'); navigate('/admin'); }} className="btn-add">
+                ➕ 영화정보 수정
+            </button>&nbsp;&nbsp;
+            <button onClick={()=>{ setAction('del'); navigate('/admin', { state: { deleteId: id } }); }} className="btn-reset">
+                🔄 영화정보 삭제
+            </button>
+            <button onClick={()=>{ setAction('test');}} className="btn-reset">
+                test
+            </button>
+        </div>   
+
+        <Routes>
+            {/* 영화 정보 수정 및 삭제 */}
+            <Route path='/admin' element={<Admin/>} />
+        </Routes>
+    </div>
+    )
+}
+
+export default detail;

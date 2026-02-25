@@ -1,0 +1,18 @@
+.animated-title {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  background-color: #4a90e2;
+  color: white;
+  padding: 15px 30px;
+  border-radius: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.animated-title:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 12px 24px rgba(74, 144, 226, 0.4);
+}

@@ -1,0 +1,73 @@
+
+import { useState } from 'react';
+import { Navbar, Nav, NavLink, Container } from 'react-bootstrap';
+import { Link, Route, Routes } from 'react-router-dom';
+import Detail from './detail.jsx';
+
+function title(){
+
+  let [imgNo, setImgNo] = new useState(0);
+  let imgUrl = ['./image/Avatar.jpg', './image/upstairPeople.jpg', './image/concreteMarket.jpg'] ;
+
+  const prev = () => setImgNo(imgNo === 0 ? imgUrl.length - 1 : imgNo - 1);
+  const next = () => setImgNo(imgNo === imgUrl.length - 1 ? 0 : imgNo + 1);
+
+  return (
+    <div>
+        <div className='black-nav'>
+          <Link to='/'>
+          <h1 style={{color:'lightblue'}}>Cine Park</h1>
+          </Link>
+        </div>
+      
+        {/* 메뉴 표시 */}
+        <Navbar className="Navbar" bg="dark" variant='dark'>
+          <Container>
+            <Navbar.Brand href='/'>홈으로</Navbar.Brand>
+            <Nav className="me-auto">           
+              <NavLink>월별</NavLink>
+              <NavLink>장르별</NavLink>
+            </Nav>
+          </Container>
+        </Navbar>
+
+        {/* 배너 이미지 표시 */}
+        <Link to='/detail'>
+          {/* <div id='bnBg' className='banner-bg' style={{
+            backgroundimage : `url(${imgUrl[imgNo]})`
+          }}></div> */}
+          <img src={imgUrl[imgNo]} className="banner-bg" />
+        </Link>
+
+        <p className="read-the-docs">
+          Click on the movie poster to view more
+        </p>
+{imgNo}
+        <button onClick={ prev 
+        // ()=>{
+          // setImgNo((imgNo - 1 + imgUrl.length) % imgUrl.length);
+          // if( imgNo == 0 ){ setImgNo(imgUrl.length - 1) }
+          // else{ setImgNo(imgNo - 1 ); }
+          // document.getElementsByClassName("banner-bg")[0].style.backgroundImage="url('" + imgUrl[imgNo] + "')"; 
+          // //alert(imgUrl[imgNo])     
+        // }
+      }>이전 image</button>
+
+        <button onClick={ next
+          // ()=>{ 
+          // setImgNo((imgNo + 1) % imgUrl.length);
+          // if(imgNo == (imgUrl.length - 1) ){ setImgNo(0) }
+          // else{ setImgNo(imgNo + 1); }       
+          // document.getElementsByClassName("banner-bg")[0].style.backgroundImage="url('" + imgUrl[imgNo] + "')";   
+          // //alert(imgUrl[imgNo])
+      //  }
+      }>다음 image</button>
+{imgUrl[imgNo]}        
+        <Routes>
+          <Route path='/detail' element={<Detail imgNo={imgNo} />}/>         
+        </Routes>
+    </div>
+  )
+}
+
+export default title;

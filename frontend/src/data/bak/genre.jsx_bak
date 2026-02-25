@@ -1,0 +1,76 @@
+import {Link, Routes, Route} from "react-router-dom";
+import { Dropdown } from 'react-bootstrap';
+import Detail from './detail.jsx';
+import { info } from './info.js'
+import { useState } from "react";
+
+function genre({setImgNo}){
+
+  let [sectionTitle, setSectionTitle] = new useState('전체');
+  let [selectedItem, setSelectedItem] = new useState('장르별 선택');
+  let [genreList,setGenreList] = new useState();
+
+  const genreChange = (genre)=>{
+    setSectionTitle(genre); setSelectedItem(genre);
+    setGenreList(genre);
+    // if( index == 1 ){ setSectionTitle('스릴러'); }
+    // if( index == 2 ){ setSectionTitle('공포'); }
+    // if( index == 3 ){ setSectionTitle('액션'); }
+    // if( index == 4 ){ setSectionTitle('판타지'); }
+    // if( index == 5 ){ setSectionTitle('애니메이션'); }
+    // if( index == 6 ){ setSectionTitle('코믹'); }
+    // if( index == 7 ){ setSectionTitle('로맨스'); }
+    // if( index == 8 ){ setSectionTitle('드라마'); }
+  }
+
+    return(
+        <div>
+            <p>장르별페이지</p>
+            <div className="text-center mb-3">
+              <Dropdown className="d-inline-block mt-2">
+                    <Dropdown.Toggle variant="primary" id="dropdown-month">
+                        {selectedItem}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item onClick={()=> genreChange('스릴러') }>스릴러</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('공포') }>공포</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('액션') }>액션</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('판타지') }>판타지</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('애니메이션') }>애니메이션</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('코믹') }>코믹</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('로맨스') }>로맨스</Dropdown.Item>
+                        <Dropdown.Item onClick={()=> genreChange('드라마') }>드라마</Dropdown.Item>
+                    </Dropdown.Menu>
+              </Dropdown>
+            </div>
+
+            <Routes>
+            {/* 영화 상세정보 */}
+            <Route path='/detail/:id' element={<Detail setImgNo={setImgNo} />}/>    
+
+            {/* 최근 개봉작 목록 */}
+            <Route path='/' element={      
+              <>   
+                <div className='container'>
+                  <div className='row'>
+                    <h2 className="section-title">{sectionTitle} 목록</h2>
+                    { info.map( (movie, i)=>{ if( movie.genre == genreList){
+                      return ( 
+                        <div className='col-md-4' key={i}> 
+                          <Link to={`/detail/${i}`} >
+                            <img className='imgList' src={movie.image} alt={movie.title} width='80%' height='60%' /> 
+                          </Link>
+                          <div>{movie.title}({movie.date})</div>
+                        </div>
+                      )}
+                    })}
+                  </div>
+                </div>
+              </>
+            }/>     
+          </Routes>            
+        </div>
+    )
+}
+
+export default genre;

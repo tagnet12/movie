@@ -1,0 +1,107 @@
+import React, { useState } from 'react';
+
+export default function TableDataFile() {
+  const [data, setData] = useState([
+    { id: 1, name: '홍길동', age: 25 },
+    { id: 2, name: '김철수', age: 30 }
+  ]);
+
+  // JSON 파일로 저장
+  const saveFile = () => {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'table-data.txt';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // 파일 불러오기
+  const loadFile = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const jsonData = JSON.parse(event.target.result);
+        setData(jsonData);
+      };
+      reader.readAsText(file);
+    }
+  };
+
+  // 행 추가
+  const addRow = () => {
+    const newId = data.length > 0 ? Math.max(...data.map(d => d.id)) + 1 : 1;
+    setData([...data, { id: newId, name: '', age: 0 }]);
+  };
+
+  // 데이터 수정
+  const updateData = (id, field, value) => {
+    setData(data.map(item => 
+      item.id === id ? { ...item, [field]: value } : item
+    ));
+  };
+
+  return (
+    <div style={{ padding: '20px' }}>
+      <h2>테이블 데이터 관리</h2>
+      
+      <div style={{ marginBottom: '10px' }}>
+        <button onClick={saveFile} style={{ marginRight: '10px', padding: '8px 16px' }}>
+          저장
+        </button>
+        <label style={{ padding: '8px 16px', background: '#4CAF50', color: 'white', cursor: 'pointer' }}>
+          불러오기
+          <input type="file" accept=".txt" onChange={loadFile} style={{ display: 'none' }} />
+        </label>
+        <button onClick={addRow} style={{ marginLeft: '10px', padding: '8px 16px' }}>
+          행 추가
+        </button>
+      </div>
+
+      <table border="1" style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>이름</th>
+            <th>나이</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map(item => (
+            <tr key={item.id}>
+              <td style={{ padding: '8px', textAlign: 'center' }}>{item.id}</td>
+              <td style={{ padding: '8px' }}>
+                <input 
+                  value={item.name} 
+                  onChange={(e) => updateData(item.id, 'name', e.target.value)}
+                  style={{ width: '100%' }}
+                />
+              </td>
+              <td style={{ padding: '8px' }}>
+                <input 
+                  type="number" 
+                  value={item.age} 
+                  onChange={(e) => updateData(item.id, 'age', parseInt(e.target.value) || 0)}
+                  style={{ width: '100%' }}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+
+
+
+주요 기능:
+
+테이블 데이터를 JSON 형식으로 텍스트 파일에 저장
+저장된 파일을 불러와서 테이블에 표시
+행 추가 및 데이터 수정 가능
+테이블 데이터가 JSON 형식으로 저장되어 구조화된 데이터 관리가 쉽습니다!

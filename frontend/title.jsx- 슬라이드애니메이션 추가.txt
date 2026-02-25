@@ -1,0 +1,197 @@
+title.jsx 수정:
+
+javascriptreact
+import { useState, useEffect } from 'react';
+import { Navbar, Nav, NavLink, Container } from 'react-bootstrap';
+import { Link, Route, Routes, useNavigate, useLocation } from 'react-router-dom';
+import Detail from './detail.jsx';
+import { info } from './info.js'
+import './slide.css';  // CSS 파일 import
+
+function title(){
+
+  let [imgNo, setImgNo] = useState(0);
+  let [slideDirection, setSlideDirection] = useState('');  // 슬라이드 방향
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // URL이 변경될 때 imgNo 동기화
+  useEffect(() => {
+    const match = location.pathname.match(/\/detail\/(\d+)/);
+    if (match) {
+      const newImgNo = Number(match[1]);
+      setImgNo(newImgNo);
+    } else if (location.pathname === '/') {
+      setImgNo(0);
+    }
+  }, [location.pathname]);
+
+  const prev = () => { 
+    setSlideDirection('slide-left');  // 왼쪽으로 슬라이드
+    setTimeout(() => {
+      const newNo = imgNo === 0 ? info.length - 1 : imgNo - 1;
+      setImgNo(newNo); 
+      navigate(`/detail/${newNo}`);
+      setSlideDirection('');
+    }, 50);
+  }
+  
+  const next = () => { 
+    setSlideDirection('slide-right');  // 오른쪽으로 슬라이드
+    setTimeout(() => {
+      const newNo = imgNo === info.length - 1 ? 0 : imgNo + 1;
+      setImgNo(newNo); 
+      navigate(`/detail/${newNo}`);
+      setSlideDirection('');
+    }, 50);
+  }
+
+  return (
+    <div style={{top: '10%'}}>        
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-8">
+        {/* 배너 이미지 표시 */}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="w-96 h-64 overflow-hidden rounded-lg mb-6 relative">
+            <Link to={`/detail/${imgNo}`}>
+              <img 
+                src={info[imgNo]?.image} 
+                alt={info[imgNo]?.title}
+                className={`banner-image ${slideDirection}`}
+                key={imgNo}
+              />
+            </Link>
+          </div>
+        </div>
+
+        {/* 배너버튼 */}
+        <button className="nav-button prev" onClick={prev}>&lt;</button>
+        <button className="nav-button next" onClick={next}>&gt;</button>      
+      
+        <Routes>
+          {/* 영화 상세정보 */}
+          <Route path='/detail/:id' element={<Detail setImgNo={setImgNo} />}/>    
+          
+          {/* 최근 개봉작 목록 */}
+          <Route path='/' element={      
+            <>   
+              <div className='container'>
+                <div className='row'>
+                  <h2 className="section-title">최근 개봉작</h2>
+                  { info.map((movie, i) => {
+                    return ( 
+                      <div className='col-md-4' key={i}> 
+                        <Link to={`/detail/${i}`}>
+                          <img src={movie.image} alt={movie.title} width='80%' height='60%' /> 
+                        </Link>
+                        <div>{movie.title}({movie.date})</div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            </>
+          }/>     
+        </Routes>
+      </div>
+    </div>
+  )
+}
+
+export default title;
+
+slide.css 파일 생성 (title.jsx와 같은 폴더에):
+
+css
+/* 기본 이미지 스타일 */
+.banner-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+/* 오른쪽으로 슬라이드 (다음 버튼) */
+.banner-image.slide-right {
+  animation: slideOutRight 0.5s ease-in-out;
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+}
+
+/* 왼쪽으로 슬라이드 (이전 버튼) */
+.banner-image.slide-left {
+  animation: slideOutLeft 0.5s ease-in-out;
+}
+
+@keyframes slideOutLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* 새 이미지 페이드인 효과 */
+.banner-image {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* 네비게이션 버튼 스타일 개선 */
+.nav-button {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 100;
+}
+
+.nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.nav-button.prev {
+  left: 20px;
+}
+
+.nav-button.next {
+  right: 20px;
+}
+주요 기능:
+
+슬라이드 방향 설정: prev 버튼은 왼쪽으로, next 버튼은 오른쪽으로 슬라이드
+부드러운 전환: 0.5초 동안 이미지가 슬라이드되며 사라지고, 새 이미지가 페이드인
+방향에 따른 애니메이션: 이전 이미지는 슬라이드 아웃, 새 이미지는 페이드인
+버튼 스타일 개선: 호버 효과와 함께 더 명확한 버튼 디자인
+
+이제 화살표 버튼을 클릭하면 이미지가 슬라이드 효과와 함께 부드럽게 전환됩니다!
