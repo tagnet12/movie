@@ -41,6 +41,49 @@ app.use(express.json());
       return;
     }
     console.log('MySQL 연결 성공!');
+
+    // DB 생성
+    db.query(`CREATE DATABASE IF NOT EXISTS my_movie_db`, (err) => {
+      if (err) console.error('DB 생성 실패:', err);
+    });
+
+    // 영화정보 테이블 생성( 없으면 생성 )
+    db.query(`CREATE TABLE IF NOT EXISTS movie_info (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      title VARCHAR(255),
+      rating VARCHAR(10),
+      genre VARCHAR(50),
+      open_date VARCHAR(20),
+      show_time VARCHAR(20),
+      director VARCHAR(100),
+      actor TEXT,
+      story TEXT,
+      trailer VARCHAR(255),
+      image_file VARCHAR(255),
+      del_yn CHAR(1) DEFAULT 'N',
+      reg_dt DATETIME DEFAULT CURRENT_TIMESTAMP,
+      upd_dt DATETIME ON UPDATE CURRENT_TIMESTAMP
+    )`, (err) => {
+      if (err) console.error('movie_info 테이블 생성 실패:', err);
+      else console.log('movie_info 테이블 준비 완료!');
+    });
+
+    // 관람평 테이블 생성( 없으면 생성 )
+    db.query(`CREATE TABLE IF NOT EXISTS review_board (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      review_type VARCHAR(50),
+      title VARCHAR(255),
+      review_txt TEXT,
+      rating VARCHAR(10),
+      writer VARCHAR(100),
+      review_pwd TEXT,
+      hits INT DEFAULT 0,
+      del_yn CHAR(1) DEFAULT 'N',
+      reg_dt DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`, (err) => {
+      if (err) console.error('review_board 테이블 생성 실패:', err);
+      else console.log('review_board 테이블 준비 완료!');
+    });
   });
   
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
