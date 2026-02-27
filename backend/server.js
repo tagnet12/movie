@@ -36,7 +36,10 @@ app.use(express.json());
 
   // db 연결오류 체크 ( 예외처리 )
   db.connect((err) => {
-    if (err) throw err;
+    if (err) {
+      console.error('MySQL 연결 실패:', err);
+      return;
+    }
     console.log('MySQL 연결 성공!');
   });
   
@@ -381,7 +384,7 @@ app.delete('/api/reviews/:id', (req, res) => {
 // 서버 로그
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log('서버가 ${PORT}번 포트에서 실행중...');
+  console.log(`서버가 ${PORT}번 포트에서 실행중...`);
 });
 
 
