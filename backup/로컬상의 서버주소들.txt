@@ -1,0 +1,31 @@
+title.jsx - 3군데
+const response = await axios.get('http://localhost:5000/api/images');
+<img src={`http://localhost:5000/image/${movies.find(m => m.id === imgNo)?.imageFile}`} /> 
+<img src={`http://localhost:5000/image/${movies.imageFile}`} />
+
+detail.jsx - 1군데
+const response = await axios.get('http://localhost:5000/api/images');
+
+genre.jsx - 2군데
+const response = await axios.get('http://localhost:5000/api/images');
+<img className='imgList' src={`http://localhost:5000/image/${movie.imageFile}`} alt={movie.title} width='80%' height='60%' /> 
+
+month.jsx - 2군데
+const response = await axios.get('http://localhost:5000/api/images');
+<img className='imgList' src={`http://localhost:5000/image/${list.imageFile}`} alt={list.title} width='80%' height='60%' />
+
+movieMng.jsx - 5군데
+const response = await axios.get('http://localhost:5000/api/images');
+const response = await axios.post('http://localhost:5000/api/images',{})
+const response = await axios.put(`http://localhost:5000/api/images/${updateId}`, {})
+const response = await axios.delete(`http://localhost:5000/api/images/${deleteId}`);
+const response = await axios.post('http://localhost:5000/api/upload-image', formData, {})
+
+review.jsx - 1군데
+const response = await axios.get('http://localhost:5000/api/reviews', {})
+
+reviewDtl.jsx - 4군데
+const response = await axios.post('http://localhost:5000/api/reviews', {})
+const response = await axios.put(`http://localhost:5000/api/reviews/${updateId}`, {})
+const response = await axios.put(`http://localhost:5000/api/reviews/${updateId}/hits`);
+const response = await axios.delete(`http://localhost:5000/api/reviews/${deleteId}`);

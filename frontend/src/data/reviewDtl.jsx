@@ -149,7 +149,7 @@ function reviewDtl() {
   
       // DB 데이터 저장
       // const response = await axios.post('http://localhost:5000/api/reviews', {
-      const response = await api.get('/api/reviews', {
+      const response = await api.post('/api/reviews', {
         review_type: reviewType, title: title, review_txt: reviewTxt, 
         rating: rating, writer: writer, review_pwd: reviewPwd
       });
@@ -209,7 +209,7 @@ function reviewDtl() {
 
       // DB 데이터 저장
       // const response = await axios.put(`http://localhost:5000/api/reviews/${updateId}`, {
-      const response = await api.get(`/api/reviews/${updateId}`, { 
+      const response = await api.put(`/api/reviews/${updateId}`, { 
         review_type: reviewType, title: title, review_txt: reviewTxt, 
         rating: rating, writer: writer
       });
@@ -245,7 +245,7 @@ function reviewDtl() {
 
       // DB 데이터 저장
       // const response = await axios.put(`http://localhost:5000/api/reviews/${updateId}/hits`);
-      const response = await api.get(`/api/reviews/${updateId}/hits`);
+      const response = await api.put(`/api/reviews/${updateId}/hits`);
 
       console.log('✅ 서버 응답:', response);
       console.log('✅ 응답 데이터:', response.data);
@@ -282,7 +282,7 @@ function reviewDtl() {
 
     try {
       // const response = await axios.delete(`http://localhost:5000/api/reviews/${deleteId}`);
-      const response = await api.get(`/api/reviews/${deleteId}`);
+      const response = await api.delete(`/api/reviews/${deleteId}`);
 
       console.log('✅ 서버 응답:', response);
       console.log('✅ 응답 데이터:', response.data);

@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const mysql = require('mysql2');
@@ -7,7 +8,10 @@ const cors = require('cors');
 const app = express();
 
 app.use(cors({
-  origin: 'https://your-frontend.cloudtype.app' // 배포 후 프론트 주소
+  origin: [
+    'http://localhost:5173',                    // 로컬 개발용
+    'https://your-frontend.cloudtype.app'       // 배포용 (나중에 실제 주소로 변경)
+  ]
 }));
 app.use(express.json());
 
@@ -17,10 +21,15 @@ app.use(express.json());
   
   // db 환경설정 및 연결
   const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '1q2w3e4r%t',
-    database: 'my_image_db'
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME   
+    // host: 'localhost',
+    // user: 'root',
+    // password: '1q2w3e4r%t',
+    // database: 'my_image_db'
   });
 
   // -----------------------------------------

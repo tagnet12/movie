@@ -142,7 +142,7 @@ function ImageListView({movie, i}){
     <div className='col-md-4' key={i}> 
       <Link to={`/detail/${movie.id}`}>
         {/* <img className='imgList' src={`http://localhost:5000/image/${movie.imageFile}`} alt={movie.title} width='80%' height='60%' />  */}
-        <img className='imgList' src={`${process.env.REACT_APP_API_URL}/image/${movie.imageFile}`} alt={movie.title} width='80%' height='60%' />
+        <img className='imgList' src={`${import.meta.env.VITE_API_URL}/image/${movie.imageFile}`} alt={movie.title} width='80%' height='60%' />
       </Link>
       <div>{movie.title}({movie.openDate})</div>
     </div>

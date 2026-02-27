@@ -170,7 +170,7 @@ function MovieMng({refreshMovies}) {
   
       // DB 데이터 저장
       // const response = await axios.post('http://localhost:5000/api/images', {
-      const response = await api.get('/api/images', {
+      const response = await api.post('/api/images', {
         title: title, rating: rating, genre: genre,
         open_date: openDate, show_time: showTime,
         director: director, actor: actor, story: story, trailer,
@@ -226,7 +226,7 @@ function MovieMng({refreshMovies}) {
       }
       // DB 데이터 저장
       // const response = await axios.put(`http://localhost:5000/api/images/${updateId}`, {
-      const response = await api.get(`/api/images/${updateId}`, { 
+      const response = await api.put(`/api/images/${updateId}`, { 
         title: title, rating: rating, genre: genre,
         open_date: openDate, show_time: showTime,
         director: director, actor: actor, story: story, trailer,
@@ -271,7 +271,7 @@ function MovieMng({refreshMovies}) {
 
     try {
       // const response = await axios.delete(`http://localhost:5000/api/images/${deleteId}`);
-      const response = await api.get(`/api/images/${deleteId}`);
+      const response = await api.delete(`/api/images/${deleteId}`);
 
       console.log('✅ 서버 응답:', response);
       console.log('✅ 응답 데이터:', response.data);
@@ -336,7 +336,7 @@ function MovieMng({refreshMovies}) {
         console.log('📡 업로드 요청 전송 중...');
         // 서버에 이미지 업로드
         // const response = await axios.post('http://localhost:5000/api/upload-image', formData, {
-        const response = await api.get('/api//upload-image', formData, {
+        const response = await api.post('/api//upload-image', formData, {
 
           headers: {
             'Content-Type': 'multipart/form-data'

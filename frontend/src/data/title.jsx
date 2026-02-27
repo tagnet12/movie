@@ -60,9 +60,12 @@ function Title(){
       try {
         // const response = await axios.get('http://localhost:5000/api/images');
         const response = await api.get('/api/images');
-        setMovies(response.data);
+        // setMovies(response.data);
+        // 배열인지 확인 후 세팅
+        setMovies(Array.isArray(response.data) ? response.data : []);
       } catch (error) {
         console.error('불러오기 실패:', error);
+        setMovies([]); // 오류 시 빈 배열로 초기화
       }
     };
 
@@ -142,7 +145,7 @@ function Title(){
     navigate('/genre');
   }
 
-  console.log('현재 imgNo:', imgNo, '이미지:', movies.find(m => m.id === imgNo)?.title);
+  console.log('현재 imgNo:', imgNo, '이미지:', Array.isArray(movies) ? movies.find(m => m.id === imgNo)?.title : 'movies가 배열이 아님');
 
 
   return (
@@ -172,7 +175,7 @@ function Title(){
           
           {/* 홈화면과 디테일 페이지에서만 배너 이미지 표시 */}
           {!isMonthPage && !isGenrePage && !isMovieMngPage && !isAdminPage && 
-           !isReviewPage && movies.length > 0 &&(
+           !isReviewPage && Array.isArray(movies) && movies.length > 0 &&(
             <>
               {/* 배너 이미지 표시 */}
               <div className="bg-white rounded-lg shadow-lg p-6">
@@ -180,7 +183,7 @@ function Title(){
                   <Link to={`/detail/${imgNo}`}>
                     {/* 배열 인덱스가 아닌 id로 찾기 */}
                     {/* <img src={`http://localhost:5000/image/${movies.find(m => m.id === imgNo)?.imageFile}`}  */}
-                    <img src={`${process.env.REACT_APP_API_URL}/image/${movies.find(m => m.id === imgNo)?.imageFile}`} 
+                    <img src={`${import.meta.env.VITE_API_URL}/image/${Array.isArray(movies) ? movies.find(m => m.id === imgNo)?.imageFile : ''}`} 
                         className={`banner-bg ${slideDirection}`} 
                         alt={movies.find(m => m.id === imgNo)?.title} />    
                   </Link>
@@ -215,17 +218,17 @@ function Title(){
                   <div className='row'>
                     <h2 className="section-title">🎥 최근 개봉작 &nbsp;&nbsp;
                     <span className="movie-count">{movies.length}개</span></h2>
-                    { movies
+                    { Array.isArray(movies) && movies
                        .sort((a, b) => b.openDate - a.openDate)  // 개봉일 내림차순 정렬
                        .slice(0, 9)           // 상위(최근) 9개만 표시
-                       .map( (movies, i)=>{   // 영화 목록 출력
+                       .map( (movie, i)=>{   // 영화 목록 출력
                       return ( 
                         <div className='col-md-4' key={i}> 
-                          <Link to={`/detail/${movies.id}`} >
+                          <Link to={`/detail/${movie.id}`} >
                             {/* <img className='imgList' src={`http://localhost:5000/image/${movies.imageFile}`} alt={movies.title} width='80%' height='60%' />  */}
-                            <img className='imgList' src={`${process.env.REACT_APP_API_URL}/image/${movies.imageFile}`} alt={movies.title} width='80%' height='60%' />
+                            <img className='imgList' src={`${import.meta.env.VITE_API_URL}/image/${movie.imageFile}`} alt={movie.title} width='80%' height='60%' />
                           </Link>
-                          <div>{movies.title}({movies.openDate})</div>
+                          <div>{movie.title}({movie.openDate})</div>
                         </div>
                       )
                     })}
