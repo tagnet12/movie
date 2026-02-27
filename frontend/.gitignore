@@ -13,6 +13,8 @@ frontend/build/
 frontend/.env
 backend/.env
 
+frontend/package-lock.json
+
 dist
 dist-ssr
 *.local
