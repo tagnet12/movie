@@ -379,8 +379,9 @@ app.delete('/api/reviews/:id', (req, res) => {
 
 
 // 서버 로그
-app.listen(5000, () => {
-  console.log('서버가 5000번 포트에서 실행중...');
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+  console.log('서버가 ${PORT}번 포트에서 실행중...');
 });
 
 
