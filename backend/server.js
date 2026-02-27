@@ -10,7 +10,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:5173',                    // 로컬 개발용
-    'https://your-frontend.cloudtype.app'       // 배포용 (나중에 실제 주소로 변경)
+    'https://port-0-cinepark-frontend-mm0ur6nb0ab5ea2b.sel3.cloudtype.app' // 배포용
   ]
 }));
 app.use(express.json());
