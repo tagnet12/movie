@@ -59,17 +59,17 @@ app.use(express.json());
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
   // 영화정보
-  const selectSql = 'SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = "N" ORDER BY open_date DESC';
-  const insertSql = 'INSERT INTO movie_info (title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)';
-  const updateSql = 'UPDATE movie_info SET title = ?, rating = ?, genre = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?';
-  const deleteSql = 'UPDATE movie_info SET del_yn = "Y" WHERE id = ?';
+  const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ORDER BY open_date DESC";
+  const insertSql = "INSERT INTO movie_info (title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
+  const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
 
   // 관람평 게시판
-  const selectSql2 = 'SELECT *, review_type as reviewType, review_txt as reviewTxt, CAST(FROM_BASE64(review_pwd) AS CHAR) as reviewPwd, reg_dt as regDt FROM review_board WHERE del_yn = "N"';
-  const insertSql2 = 'INSERT INTO review_board (review_type, title, review_txt, rating, writer, review_pwd) VALUES (?, ?, ?, ?, ?, TO_BASE64(?))';
-  const updateSql2 = 'UPDATE review_board SET review_type = ?, title = ?, review_txt = ?, rating = ?, writer = ? WHERE id = ?';
-  const updateHitsSql = 'UPDATE review_board SET hits = hits + 1 WHERE id = ?'; 
-  const deleteSql2 = 'UPDATE review_board SET del_yn = "Y" WHERE id = ?';  
+  const selectSql2 = "SELECT *, review_type as reviewType, review_txt as reviewTxt, CAST(FROM_BASE64(review_pwd) AS CHAR) as reviewPwd, reg_dt as regDt FROM review_board WHERE del_yn = 'N'";
+  const insertSql2 = "INSERT INTO review_board (review_type, title, review_txt, rating, writer, review_pwd) VALUES (?, ?, ?, ?, ?, TO_BASE64(?))";
+  const updateSql2 = "UPDATE review_board SET review_type = ?, title = ?, review_txt = ?, rating = ?, writer = ? WHERE id = ?";
+  const updateHitsSql = "UPDATE review_board SET hits = hits + 1 WHERE id = ?"; 
+  const deleteSql2 = "UPDATE review_board SET del_yn = 'Y' WHERE id = ?"; 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
