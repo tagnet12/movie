@@ -27,7 +27,10 @@ app.use(express.json());
     password: process.env.DB_PASSWORD,
     database: process.env.DB_NAME,
     waitForConnections: true,
-    connectionLimit: 10   
+    connectionLimit: 10,
+    ssl: {
+      rejectUnauthorized: false
+    }   
     // host: 'localhost',
     // user: 'root',
     // password: '1q2w3e4r%t',
