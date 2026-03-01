@@ -426,7 +426,8 @@ function MovieMng({refreshMovies}) {
                   <div className="image-preview">
                     <img id = "imgPreview"
                       src={ imagePreview ||  // ✅ 새 파일: Blob URL (즉시 표시)
-                        `http://localhost:5000/image/${imageFile}` } 
+                        // `http://localhost:5000/image/${imageFile}` } 
+                        `/image/${imageFile}` } 
                       alt="미리보기"
                       onError={(e) => {
                         e.target.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="200" height="200"%3E%3Crect fill="%23f0f0f0" width="200" height="200"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em" font-size="14"%3E이미지 없음%3C/text%3E%3C/svg%3E';
