@@ -1,4 +1,18 @@
 require('dotenv').config();
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ------------------------------- cloudinary 설정 ------------------------------
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 const express = require('express');
 const multer = require('multer');
 const mysql = require('mysql2');
@@ -402,20 +416,29 @@ app.listen(PORT, () => {
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // 이미지 업로드 설정
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'public/image/') // 이미지 저장 경로
-  },
-  filename: function (req, file, cb) {
+// const storage = multer.diskStorage({
+//   destination: function (req, file, cb) {
+//     cb(null, 'public/image/') // 이미지 저장 경로
+//   },
+//   filename: function (req, file, cb) {
     // 고유한 파일명 생성 (타임스탬프 + 원본 파일명)
     // const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
     // cb(null, uniqueSuffix + path.extname(file.originalname));
     
     // ✅ 원본 파일명 그대로 사용
-    cb(null, file.originalname);
-  }
-});
+//     cb(null, file.originalname);
+//   }
+// });
 
+// 기존 diskStorage 대신 CloudinaryStorage 사용
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'cinepark',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
+    public_id: (req, file) => file.originalname.split('.')[0],
+  },
+});
 // -----------------------------------------
 
 // 이미지 업로드
@@ -448,7 +471,8 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
       success: true,
       filename: req.file.filename,
       originalname: req.file.originalname,
-      path: `/image/${req.file.filename}`
+      // path: `/image/${req.file.filename}`
+      path: req.file.path  // Cloudinary URL
     });
   } catch (error) {
     console.error('업로드 에러:', error);
