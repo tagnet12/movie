@@ -13,4 +13,5 @@ export default defineConfig({
   preview: {
     allowedHosts: ['port-0-cinepark-frontend-mm0ur6nb0ab5ea2b.sel3.cloudtype.app'],
   },
+  base: '/'
 })
