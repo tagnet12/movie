@@ -23,8 +23,9 @@ const app = express();
 
 app.use(cors({
   origin: [
-    'http://localhost:5173',                    // 로컬 개발용
-    'https://port-0-cinepark-frontend-mm0ur6nb0ab5ea2b.sel3.cloudtype.app' // 배포용
+    'http://localhost:5173',                // 로컬 개발용
+    'https://port-0-cinepark-frontend-mm0ur6nb0ab5ea2b.sel3.cloudtype.app', // 배포용
+    'https://cineparks.github.io'           // 배포용 (짧은 주소용)
   ]
 }));
 app.use(express.json());
