@@ -468,9 +468,13 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
       return res.status(400).json({ error: '파일이 업로드되지 않았습니다.' });
     }
     
+    console.log('✅ req.file 전체:', req.file);  // ✅ 추가
+    console.log('✅ filename:', req.file.filename);  // ✅ 추가
+    console.log('✅ path:', req.file.path);  // ✅ 추가
+
     res.json({
       success: true,
-      filename: req.file.filename,
+      filename: req.file.path,  // ✅ Cloudinary 전체 URL로 변경
       originalname: req.file.originalname,
       // path: `/image/${req.file.filename}`
       path: req.file.path  // Cloudinary URL
