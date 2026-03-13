@@ -74,7 +74,7 @@ app.use(express.json());
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
   // 영화정보
-  const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ORDER BY open_date DESC";
+  const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
   const insertSql = "INSERT INTO movie_info (title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
@@ -95,8 +95,40 @@ app.use(express.json());
 
 // 영화 목록 조회 쿼리
 app.get('/api/images', (req, res) => {
+
+  let {searchType, searchTxt} = req.query;
+  if(searchTxt == null || searchTxt == undefined){ searchTxt = ''; }
+
+  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt)
+
+  let query = selectSql;
+
+  // 검색 조건 추가
+    if (searchType === 'title') {
+      query += ` AND title LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'director') {
+      query += ` AND director LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'actor') {
+      query += ` AND actor LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'rating') {
+      query += ` AND rating LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'opendate') {
+      query += ` AND open_date  LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'all' && searchTxt != '' ) {
+      query += ` AND (title LIKE '%${searchTxt}%'`
+      query += ` OR director LIKE '%${searchTxt}%'`
+      query += ` OR actor LIKE '%${searchTxt}%'`
+      query += ` OR rating LIKE '%${searchTxt}%'`
+      query += ` OR open_date LIKE '%${searchTxt}%')`
+    }
+  
+  query += ' ORDER BY open_date DESC';
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', query);
+
   // 쿼리 실행 
-  db.query(selectSql, (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -238,11 +270,11 @@ app.get('/api/reviews', (req, res) => {
     } else if (searchType === 'writer') {
       query += ` AND writer LIKE '%${searchTxt}%'`;
     } else if (searchType === 'all' && searchTxt != '' ) {
-      query += `AND (title LIKE '%${searchTxt}%'`
-      query += `OR review_type LIKE '%${searchTxt}%'`
-      query += `OR review_txt LIKE '%${searchTxt}%'`
-      query += `OR rating LIKE '%${searchTxt}%'`
-      query += `OR writer LIKE '%${searchTxt}%')`
+      query += ` AND (title LIKE '%${searchTxt}%'`
+      query += ` OR review_type LIKE '%${searchTxt}%'`
+      query += ` OR review_txt LIKE '%${searchTxt}%'`
+      query += ` OR rating LIKE '%${searchTxt}%'`
+      query += ` OR writer LIKE '%${searchTxt}%')`
     }
   // }
   
