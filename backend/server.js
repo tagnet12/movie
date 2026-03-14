@@ -75,8 +75,8 @@ app.use(express.json());
 
   // 영화정보
   const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
-  const insertSql = "INSERT INTO movie_info (title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
+  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
 
   // 관람평 게시판
@@ -141,7 +141,7 @@ app.get('/api/images', (req, res) => {
 // 영화 목록 등록 쿼리
 app.post('/api/images', (req, res) => {
   // 파라미터 세팅
-  const { title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
+  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
 
 console.log('📥 받은 데이터:', req.body);
   console.log('📌 image_file:', image_file);
@@ -149,10 +149,10 @@ console.log('📥 받은 데이터:', req.body);
 
   // 쿼리 로그 출력
   console.log('📝 실행할 쿼리:', insertSql);
-  console.log('📦 전달된 데이터:', { title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file });
+  console.log('📦 전달된 데이터:', { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file });
 
   // 쿼리 실행
-  db.query(insertSql, [title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file], (err, result) => {
+  db.query(insertSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
@@ -171,7 +171,7 @@ console.log('📥 받은 데이터:', req.body);
 app.put('/api/images/:id', (req, res) => {
   // 파라미터 세팅
   const { id } = req.params;
-  const { title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
+  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
 
   // 쿼리 로그 출력
   console.log('📝 실행할 쿼리:', updateSql);
@@ -184,7 +184,7 @@ app.put('/api/images/:id', (req, res) => {
   }
 
   // 쿼리 실행 
-  db.query(updateSql, [title, rating, genre, open_date, show_time, director, actor, story, trailer, image_file, id], (err, result) => {
+  db.query(updateSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, id], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
