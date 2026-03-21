@@ -75,7 +75,7 @@ app.use(express.json());
 
   // 영화정보
   const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
-  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
 
