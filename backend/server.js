@@ -43,6 +43,7 @@ app.use(express.json());
     database: process.env.DB_NAME,
     waitForConnections: true,
     connectionLimit: 10,
+    // debug: true 
     // ssl: {
     //   rejectUnauthorized: false
     // }   
@@ -74,7 +75,7 @@ app.use(express.json());
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
   // 영화정보
-  const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
+  // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
   const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
   const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
@@ -101,7 +102,8 @@ app.get('/api/images', (req, res) => {
 
   console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt)
 
-  let query = selectSql;
+  // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
+  let query = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
 
   // 검색 조건 추가
     if (searchType === 'title') {
@@ -111,17 +113,17 @@ app.get('/api/images', (req, res) => {
     } else if (searchType === 'actor') {
       query += ` AND actor LIKE '%${searchTxt}%'`;
     } else if (searchType === 'rating') {
-      query += ` AND rating LIKE '%${searchTxt}%'`;
+      query += ` AND LEFT(rating, 1) = '${searchTxt}'`;
     } else if (searchType === 'opendate') {
       query += ` AND open_date  LIKE '%${searchTxt}%'`;
     } else if (searchType === 'all' && searchTxt != '' ) {
       query += ` AND (title LIKE '%${searchTxt}%'`
       query += ` OR director LIKE '%${searchTxt}%'`
       query += ` OR actor LIKE '%${searchTxt}%'`
-      query += ` OR rating LIKE '%${searchTxt}%'`
+      query += ` OR LEFT(rating, 1) = '${searchTxt}'`;
       query += ` OR open_date LIKE '%${searchTxt}%')`
     }
-  
+    
   query += ' ORDER BY open_date DESC';
 
   // 쿼리 로그 출력
