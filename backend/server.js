@@ -86,6 +86,14 @@ app.use(express.json());
   const updateSql2 = "UPDATE review_board SET review_type = ?, title = ?, review_txt = ?, rating = ?, writer = ? WHERE id = ?";
   const updateHitsSql = "UPDATE review_board SET hits = hits + 1 WHERE id = ?"; 
   const deleteSql2 = "UPDATE review_board SET del_yn = 'Y' WHERE id = ?"; 
+
+  // 제안 및 문의 게시판
+  const selectSql3 = "SELECT *, request_type as requestType, request_txt as requestTxt, CAST(FROM_BASE64(request_pwd) AS CHAR) as requestPwd, reg_dt as regDt FROM request_board WHERE del_yn = 'N'";
+  const insertSql3 = "INSERT INTO request_board (category, title, request_txt, request_type, writer, request_pwd) VALUES (?, ?, ?, ?, ?, TO_BASE64(?))";
+  const updateSql3 = "UPDATE request_board SET category = ?, title = ?, request_txt = ?, request_type = ?, writer = ? WHERE id = ?";
+  const updateHitsSql2 = "UPDATE request_board SET hits = hits + 1 WHERE id = ?"; 
+  const deleteSql3 = "UPDATE request_board SET del_yn = 'Y' WHERE id = ?"; 
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
@@ -260,7 +268,6 @@ app.get('/api/reviews', (req, res) => {
   let query = selectSql2;
 
   // 검색 조건 추가
-  // if (searchType && searchTxt && searchType !== 'all') {
     if (searchType === 'title') {
       query += ` AND title LIKE '%${searchTxt}%'`;
     } else if (searchType === 'reviewType') {
@@ -278,7 +285,6 @@ app.get('/api/reviews', (req, res) => {
       query += ` OR rating LIKE '%${searchTxt}%'`
       query += ` OR writer LIKE '%${searchTxt}%')`
     }
-  // }
   
   query += ' ORDER BY reg_dt DESC';
 
@@ -433,6 +439,190 @@ app.delete('/api/reviews/:id', (req, res) => {
   });  
 });
 
+// =========================================================================
+// =========================================================================
+
+// 제안 및 문의 조회 쿼리
+app.get('/api/requests', (req, res) => {
+  let {searchType, searchTxt} = req.query;
+  if(searchTxt == null || searchTxt == undefined){ searchTxt = ''; }
+
+  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt)
+
+  let query = selectSql3;
+
+  // 검색 조건 추가
+    if (searchType === 'title') {
+      query += ` AND title LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'category') {
+      query += ` AND category LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'requestTxt') {
+      query += ` AND request_txt LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'requestype') {
+      query += ` AND request_type LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'writer') {
+      query += ` AND writer LIKE '%${searchTxt}%'`;
+    } else if (searchType === 'all' && searchTxt != '' ) {
+      query += ` AND (title LIKE '%${searchTxt}%'`
+      query += ` OR category LIKE '%${searchTxt}%'`
+      query += ` OR request_txt LIKE '%${searchTxt}%'`
+      query += ` OR request_type LIKE '%${searchTxt}%'`
+      query += ` OR writer LIKE '%${searchTxt}%')`
+    }
+  
+  query += ' ORDER BY reg_dt DESC';
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', query);
+
+  // 쿼리 실행 
+  db.query(query, (err, results) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+// 제안 및 문의 등록 쿼리
+app.post('/api/requests', (req, res) => {
+  // 파라미터 세팅
+  const { category, title, request_txt, request_type, writer, request_pwd } = req.body;
+
+  console.log('📥 파라미터로 받은 데이터:', req.body);
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', insertSql3);
+  console.log('📦 쿼리로 전달된 데이터:', { category, title, request_txt, request_type, writer, request_pwd });
+
+  // 쿼리 실행
+  db.query(insertSql3, [category, title, request_txt, request_type, writer, request_pwd], (err, result) => {
+    if (err) {
+      console.error('❌ 쿼리 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    console.log('✅ 제안 및 문의 저장 성공! ID:', result.insertId);
+    res.json({ 
+      message: '제안 및 문의 저장 성공!', 
+      id: result.insertId 
+    });
+  });  
+});
+
+// 제안 및 문의 수정 쿼리
+app.put('/api/requests/:id', (req, res) => {
+  // 파라미터 세팅
+  const { id } = req.params;
+  const { category, title, request_txt, request_type, writer } = req.body;
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', updateSql3);
+  console.log('📦 전달된 id:', id);
+  console.log('전달받은 데이터: ' + category + ' , ' + title + ' , ' + request_txt + ' , ' + request_type + ' , ' + writer)
+
+  // ID가 없으면 에러
+  if (!id) {
+    console.error('❌ ID가 전달되지 않음');
+    return res.status(400).json({ error: 'ID가 필요합니다' });
+  }
+
+  // 쿼리 실행 
+  db.query(updateSql3, [category, title, request_txt, request_type, writer, id], (err, result) => {
+    if (err) {
+      console.error('❌ 쿼리 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log('✅ 수정 성공! 영향받은 행:', result.affectedRows);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '해당 ID의 제안 및 문의를 찾을 수 없습니다' });
+    }
+
+    console.log('✅ 수정 성공! ID:', id);
+    res.json({
+      message: '제안 및 문의 수정 성공!', 
+      affectedRows: result.affectedRows,
+      id : id
+    });
+  });  
+});
+
+// 제안 및 문의 조회수 수정 쿼리
+app.put('/api/requests/:id/hits', (req, res) => {
+  // 파라미터 세팅
+  const { id } = req.params;
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', updateHitsSql2);
+  console.log('📦 전달된 id:', id);
+
+  // ID가 없으면 에러
+  if (!id) {
+    console.error('❌ ID가 전달되지 않음');
+    return res.status(400).json({ error: 'ID가 필요합니다' });
+  }
+
+  // 쿼리 실행 
+  db.query(updateHitsSql2, [id], (err, result) => {
+    if (err) {
+      console.error('❌ 쿼리 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log('✅ 수정 성공! 영향받은 행:', result.affectedRows);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '해당 ID의 제안 및 문의를 찾을 수 없습니다' });
+    }
+
+    console.log('✅ 수정 성공! ID:', id);
+    res.json({
+      message: '조회수 수정 성공!', 
+      affectedRows: result.affectedRows,
+      id : id
+    });
+  });  
+});
+
+// 제안 및 문의 삭제 쿼리
+app.delete('/api/requests/:id', (req, res) => {
+  // 파라미터 세팅
+  const { id } = req.params;
+
+  // 쿼리 로그 출력
+  console.log('📝 실행할 쿼리:', deleteSql3);
+  console.log('📦 전달된 데이터:', id);
+
+  // ID가 없으면 에러
+  if (!id) {
+    console.error('❌ ID가 전달되지 않음');
+    return res.status(400).json({ error: 'ID가 필요합니다' });
+  }
+
+  // 쿼리 실행 
+  db.query(deleteSql3, [id], (err, result) => {
+    if (err) {
+      console.error('❌ 쿼리 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+
+    console.log('✅ 삭제 성공! 영향받은 행:', result.affectedRows);
+    
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: '해당 ID의 제안 및 문의를 찾을 수 없습니다' });
+    }
+
+    console.log('✅ 삭제 성공! ID:', id);
+    res.json({
+      message: '제안 및 문의 정보 삭제 성공!', 
+      // id: result.deleteId 
+      affectedRows: result.affectedRows,
+      id : id
+    });
+  });  
+});
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
@@ -471,7 +661,7 @@ const storage = new CloudinaryStorage({
   params: {
     folder: 'cinepark',
     allowed_formats: ['jpg', 'jpeg', 'png', 'gif', 'webp'],
-    public_id: (req, file) => file.originalname.split('.')[0],
+    public_id: () => Date.now() + '-' + Math.round(Math.random() * 1e6),
   },
 });
 // -----------------------------------------
@@ -508,10 +698,9 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
 
     res.json({
       success: true,
-      filename: req.file.path,  // ✅ Cloudinary 전체 URL로 변경
+      filename: req.file.originalname,  // DB에 저장할 파일명만
       originalname: req.file.originalname,
-      // path: `/image/${req.file.filename}`
-      path: req.file.path  // Cloudinary URL
+      path: req.file.path  // Cloudinary 전체 URL (미리보기용)
     });
   } catch (error) {
     console.error('업로드 에러:', error);
