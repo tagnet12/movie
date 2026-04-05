@@ -76,8 +76,8 @@ app.use(express.json());
 
   // 영화정보
   // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
-  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ? WHERE id = ?";
+  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ?, image_url = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
 
   // 관람평 게시판
@@ -111,7 +111,7 @@ app.get('/api/images', (req, res) => {
   console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt)
 
   // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
-  let query = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
+  let query = "SELECT *, open_date as openDate, image_file as imageFile, image_url as imageUrl FROM movie_info WHERE del_yn = 'N' ";
 
   // 검색 조건 추가
     if (searchType === 'title') {
@@ -151,10 +151,11 @@ app.get('/api/images', (req, res) => {
 // 영화 목록 등록 쿼리
 app.post('/api/images', (req, res) => {
   // 파라미터 세팅
-  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
+  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
 
 console.log('📥 받은 데이터:', req.body);
   console.log('📌 image_file:', image_file);
+  console.log('📌 image_url:', image_url);
   console.log('📌 trailer:', trailer);
 
   // 쿼리 로그 출력
@@ -162,7 +163,7 @@ console.log('📥 받은 데이터:', req.body);
   console.log('📦 전달된 데이터:', { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file });
 
   // 쿼리 실행
-  db.query(insertSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file], (err, result) => {
+  db.query(insertSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
@@ -181,7 +182,7 @@ console.log('📥 받은 데이터:', req.body);
 app.put('/api/images/:id', (req, res) => {
   // 파라미터 세팅
   const { id } = req.params;
-  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file } = req.body;
+  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
 
   // 쿼리 로그 출력
   console.log('📝 실행할 쿼리:', updateSql);
@@ -194,7 +195,7 @@ app.put('/api/images/:id', (req, res) => {
   }
 
   // 쿼리 실행 
-  db.query(updateSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, id], (err, result) => {
+  db.query(updateSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url, id], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
@@ -698,9 +699,8 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
 
     res.json({
       success: true,
-      filename: req.file.originalname,  // DB에 저장할 파일명만
-      originalname: req.file.originalname,
-      path: req.file.path  // Cloudinary 전체 URL (미리보기용)
+      filename: req.file.originalname,  // 원본 파일명 (image_file 컬럼)
+      imageUrl: req.file.path,          // Cloudinary 전체 URL (image_url 컬럼)
     });
   } catch (error) {
     console.error('업로드 에러:', error);
