@@ -88,11 +88,18 @@ app.use(express.json());
   const deleteSql2 = "UPDATE review_board SET del_yn = 'Y' WHERE id = ?"; 
 
   // 제안 및 문의 게시판
-  const selectSql3 = "SELECT *, request_type as requestType, request_txt as requestTxt, CAST(FROM_BASE64(request_pwd) AS CHAR) as requestPwd, reg_dt as regDt FROM request_board WHERE del_yn = 'N'";
+  const selectSql3 = "SELECT rb.*, rb.request_type as requestType, rb.request_txt as requestTxt, CAST(FROM_BASE64(rb.request_pwd) AS CHAR) as requestPwd, rb.reg_dt as regDt, (SELECT COUNT(*) FROM request_comment rc WHERE rc.request_id = rb.id AND rc.del_yn = 'N') as commentCount FROM request_board rb WHERE rb.del_yn = 'N'";
   const insertSql3 = "INSERT INTO request_board (category, title, request_txt, request_type, writer, request_pwd) VALUES (?, ?, ?, ?, ?, TO_BASE64(?))";
   const updateSql3 = "UPDATE request_board SET category = ?, title = ?, request_txt = ?, request_type = ?, writer = ? WHERE id = ?";
   const updateHitsSql2 = "UPDATE request_board SET hits = hits + 1 WHERE id = ?"; 
-  const deleteSql3 = "UPDATE request_board SET del_yn = 'Y' WHERE id = ?"; 
+  const deleteSql3 = "UPDATE request_board SET del_yn = 'Y' WHERE id = ?";
+
+  // 제안 및 문의 댓글
+  const selectCommentSql = "SELECT id, request_id as requestId, comment, writer, reg_dt as regDt FROM request_comment WHERE request_id = ? AND del_yn = 'N' ORDER BY reg_dt ASC";
+  const insertCommentSql = "INSERT INTO request_comment (request_id, comment, writer, comment_pwd) VALUES (?, ?, ?, TO_BASE64(?))";
+  const selectCommentPwdSql = "SELECT CAST(FROM_BASE64(comment_pwd) AS CHAR) as comment_pwd FROM request_comment WHERE id = ? AND del_yn = 'N'";
+  const updateCommentSql = "UPDATE request_comment SET comment = ? WHERE id = ?";
+  const deleteCommentSql = "UPDATE request_comment SET del_yn = 'Y' WHERE id = ?";
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -626,7 +633,88 @@ app.delete('/api/requests/:id', (req, res) => {
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+// 제안 및 문의 댓글 조회 쿼리
+app.get('/api/request-comments/:requestId', (req, res) => {
+  const { requestId } = req.params;
+  db.query(selectCommentSql, [requestId], (err, result) => {
+    if (err) {
+      console.error('❌ 댓글 조회 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(result);
+  });
+});
 
+// 제안 및 문의 댓글 등록 쿼리
+app.post('/api/request-comments', (req, res) => {
+  const { request_id, comment, writer, comment_pwd } = req.body;
+  if (!request_id || !comment || !writer || !comment_pwd) {
+    return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+  }
+  db.query(insertCommentSql, [request_id, comment, writer, comment_pwd], (err, result) => {
+    if (err) {
+      console.error('❌ 댓글 등록 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ message: '댓글 등록 성공!', id: result.insertId });
+  });
+});
+
+// 제안 및 문의 댓글 수정 쿼리
+app.put('/api/request-comments/:id', (req, res) => {
+  const { id } = req.params;
+  const { comment, comment_pwd } = req.body;
+
+  // 패스워드 확인
+  db.query(selectCommentPwdSql, [id], (err, result) => {
+    if (err) {
+      console.error('❌ 댓글 패스워드 조회 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
+    }
+    if (result[0].comment_pwd !== comment_pwd) {
+      return res.status(401).json({ error: '패스워드가 일치하지 않습니다.' });
+    }
+    db.query(updateCommentSql, [comment, id], (err2) => {
+      if (err2) {
+        console.error('❌ 댓글 수정 에러:', err2);
+        return res.status(500).json({ error: err2.message });
+      }
+      res.json({ message: '댓글 수정 성공!', id });
+    });
+  });
+});
+
+// 제안 및 문의 댓글 삭제 쿼리
+app.delete('/api/request-comments/:id', (req, res) => {
+  const { id } = req.params;
+  const { comment_pwd } = req.body;
+
+  // 패스워드 확인
+  db.query(selectCommentPwdSql, [id], (err, result) => {
+    if (err) {
+      console.error('❌ 댓글 패스워드 조회 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
+    }
+    if (result[0].comment_pwd !== comment_pwd) {
+      return res.status(401).json({ error: '패스워드가 일치하지 않습니다.' });
+    }
+    db.query(deleteCommentSql, [id], (err2, _result2) => {
+      if (err2) {
+        console.error('❌ 댓글 삭제 에러:', err2);
+        return res.status(500).json({ error: err2.message });
+      }
+      res.json({ message: '댓글 삭제 성공!', id });
+    });
+  });
+});
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // 서버 로그
 const PORT = process.env.PORT || 5000;
