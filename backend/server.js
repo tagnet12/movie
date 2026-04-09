@@ -112,10 +112,10 @@ app.use(express.json());
 // 영화 목록 조회 쿼리
 app.get('/api/images', (req, res) => {
 
-  let {searchType, searchTxt} = req.query;
+  let {searchType, searchTxt, sortType} = req.query;
   if(searchTxt == null || searchTxt == undefined){ searchTxt = ''; }
 
-  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt)
+  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt + ' , sortType: ' + sortType)
 
   // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
   let query = "SELECT *, open_date as openDate, image_file as imageFile, image_url as imageUrl FROM movie_info WHERE del_yn = 'N' ";
@@ -139,7 +139,7 @@ app.get('/api/images', (req, res) => {
       query += ` OR open_date LIKE '%${searchTxt}%')`
     }
     
-  query += ' ORDER BY open_date DESC';
+  query += sortType === 'popular' ? ' ORDER BY CAST(rating AS DECIMAL(5,1)) DESC' : ' ORDER BY open_date DESC';
 
   // 쿼리 로그 출력
   console.log('📝 실행할 쿼리:', query);
