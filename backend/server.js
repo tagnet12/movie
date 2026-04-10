@@ -716,6 +716,38 @@ app.delete('/api/request-comments/:id', (req, res) => {
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+// =========================================================================
+// =========================================================================
+
+// 아카데미 시상식 회차 목록 조회
+app.get('/api/academy/ceremonies', (req, res) => {
+  const sql = "SELECT DISTINCT ceremony_no, ceremony_year FROM academy_award WHERE del_yn = 'N' ORDER BY ceremony_no DESC";
+  console.log('📝 실행할 쿼리:', sql);
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('❌ 아카데미 회차 목록 조회 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+// 아카데미 시상식 특정 회차 수상자 조회
+app.get('/api/academy/:ceremonyNo', (req, res) => {
+  const { ceremonyNo } = req.params;
+  const sql = "SELECT * FROM academy_award WHERE ceremony_no = ? AND del_yn = 'N' ORDER BY id ASC";
+  console.log('📝 실행할 쿼리:', sql, '| 회차:', ceremonyNo);
+  db.query(sql, [ceremonyNo], (err, results) => {
+    if (err) {
+      console.error('❌ 아카데미 수상자 조회 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json(results);
+  });
+});
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
 // 서버 로그
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
