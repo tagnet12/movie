@@ -746,6 +746,51 @@ app.get('/api/academy/:ceremonyNo', (req, res) => {
   });
 });
 
+// 아카데미 수상자 등록
+app.post('/api/academy', (req, res) => {
+  const { ceremony_no, ceremony_year, category, category_nm, winner_nm, movie_title, tmdb_id } = req.body;
+  const sql = "INSERT INTO academy_award (ceremony_no, ceremony_year, category, category_nm, winner_nm, movie_title, tmdb_id) VALUES (?, ?, ?, ?, ?, ?, ?)";
+  console.log('📝 아카데미 등록 쿼리 실행');
+  db.query(sql, [ceremony_no, ceremony_year, category, category_nm, winner_nm, movie_title || null, tmdb_id || null], (err, result) => {
+    if (err) {
+      console.error('❌ 아카데미 등록 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    res.json({ message: '등록 성공!', id: result.insertId });
+  });
+});
+
+// 아카데미 수상자 수정
+app.put('/api/academy/:id', (req, res) => {
+  const { id } = req.params;
+  const { ceremony_no, ceremony_year, category, category_nm, winner_nm, movie_title, tmdb_id } = req.body;
+  const sql = "UPDATE academy_award SET ceremony_no=?, ceremony_year=?, category=?, category_nm=?, winner_nm=?, movie_title=?, tmdb_id=? WHERE id=?";
+  console.log('📝 아카데미 수정 쿼리 실행 | id:', id);
+  db.query(sql, [ceremony_no, ceremony_year, category, category_nm, winner_nm, movie_title || null, tmdb_id || null, id], (err, result) => {
+    if (err) {
+      console.error('❌ 아카데미 수정 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    if (result.affectedRows === 0) return res.status(404).json({ error: '해당 ID를 찾을 수 없습니다' });
+    res.json({ message: '수정 성공!', id });
+  });
+});
+
+// 아카데미 수상자 삭제
+app.delete('/api/academy/:id', (req, res) => {
+  const { id } = req.params;
+  const sql = "UPDATE academy_award SET del_yn = 'Y' WHERE id = ?";
+  console.log('📝 아카데미 삭제 쿼리 실행 | id:', id);
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      console.error('❌ 아카데미 삭제 에러:', err);
+      return res.status(500).json({ error: err.message });
+    }
+    if (result.affectedRows === 0) return res.status(404).json({ error: '해당 ID를 찾을 수 없습니다' });
+    res.json({ message: '삭제 성공!', id });
+  });
+});
+
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 // 서버 로그
