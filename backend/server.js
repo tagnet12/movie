@@ -94,6 +94,13 @@ app.use(express.json());
   const updateHitsSql2 = "UPDATE request_board SET hits = hits + 1 WHERE id = ?"; 
   const deleteSql3 = "UPDATE request_board SET del_yn = 'Y' WHERE id = ?";
 
+  // 영화 댓글
+  const selectMovieCommentSql = "SELECT id, movie_id as movieId, comment, writer, rating, reg_dt as regDt FROM movie_comment WHERE movie_id = ? AND del_yn = 'N' ORDER BY reg_dt DESC";
+  const insertMovieCommentSql = "INSERT INTO movie_comment (movie_id, comment, writer, rating, comment_pwd) VALUES (?, ?, ?, ?, TO_BASE64(?))";
+  const selectMovieCommentPwdSql = "SELECT CAST(FROM_BASE64(comment_pwd) AS CHAR) as comment_pwd FROM movie_comment WHERE id = ? AND del_yn = 'N'";
+  const updateMovieCommentSql = "UPDATE movie_comment SET comment = ?, rating = ? WHERE id = ?";
+  const deleteMovieCommentSql = "UPDATE movie_comment SET del_yn = 'Y' WHERE id = ?";
+
   // 제안 및 문의 댓글
   const selectCommentSql = "SELECT id, request_id as requestId, comment, writer, reg_dt as regDt FROM request_comment WHERE request_id = ? AND del_yn = 'N' ORDER BY reg_dt ASC";
   const insertCommentSql = "INSERT INTO request_comment (request_id, comment, writer, comment_pwd) VALUES (?, ?, ?, TO_BASE64(?))";
@@ -715,6 +722,57 @@ app.delete('/api/request-comments/:id', (req, res) => {
 });
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// 영화 댓글 조회
+app.get('/api/movie-comments/:movieId', (req, res) => {
+  const { movieId } = req.params;
+  db.query(selectMovieCommentSql, [movieId], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(result);
+  });
+});
+
+// 영화 댓글 등록
+app.post('/api/movie-comments', (req, res) => {
+  const { movie_id, comment, writer, rating, comment_pwd } = req.body;
+  if (!movie_id || !comment || !writer || !comment_pwd) {
+    return res.status(400).json({ error: '필수 항목이 누락되었습니다.' });
+  }
+  db.query(insertMovieCommentSql, [movie_id, comment, writer, rating || null, comment_pwd], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ message: '댓글 등록 성공!', id: result.insertId });
+  });
+});
+
+// 영화 댓글 수정
+app.put('/api/movie-comments/:id', (req, res) => {
+  const { id } = req.params;
+  const { comment, rating, comment_pwd } = req.body;
+  db.query(selectMovieCommentPwdSql, [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.length === 0) return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
+    if (result[0].comment_pwd !== comment_pwd) return res.status(401).json({ error: '패스워드가 일치하지 않습니다.' });
+    db.query(updateMovieCommentSql, [comment, rating || null, id], (err2) => {
+      if (err2) return res.status(500).json({ error: err2.message });
+      res.json({ message: '댓글 수정 성공!', id });
+    });
+  });
+});
+
+// 영화 댓글 삭제
+app.delete('/api/movie-comments/:id', (req, res) => {
+  const { id } = req.params;
+  const { comment_pwd } = req.body;
+  db.query(selectMovieCommentPwdSql, [id], (err, result) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (result.length === 0) return res.status(404).json({ error: '댓글을 찾을 수 없습니다.' });
+    if (result[0].comment_pwd !== comment_pwd) return res.status(401).json({ error: '패스워드가 일치하지 않습니다.' });
+    db.query(deleteMovieCommentSql, [id], (err2) => {
+      if (err2) return res.status(500).json({ error: err2.message });
+      res.json({ message: '댓글 삭제 성공!', id });
+    });
+  });
+});
 
 // =========================================================================
 // =========================================================================
