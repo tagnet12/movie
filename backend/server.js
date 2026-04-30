@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cron = require('node-cron');
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 // ------------------------------- cloudinary 설정 ------------------------------
@@ -76,8 +77,8 @@ app.use(express.json());
 
   // 영화정보
   // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
-  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ?, image_url = ? WHERE id = ?";
+  const insertSql = "INSERT INTO movie_info (title, rating, genre, cookieYn, openYn, open_date, show_time, director, actor, story, trailer, image_file, image_url) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+  const updateSql = "UPDATE movie_info SET title = ?, rating = ?, genre = ?, cookieYn = ?, openYn = ?, open_date = ?, show_time = ?, director = ?, actor = ?, story = ?, trailer = ?, image_file = ?, image_url = ? WHERE id = ?";
   const deleteSql = "UPDATE movie_info SET del_yn = 'Y' WHERE id = ?";
 
   // 관람평 게시판
@@ -119,13 +120,14 @@ app.use(express.json());
 // 영화 목록 조회 쿼리
 app.get('/api/images', (req, res) => {
 
-  let {searchType, searchTxt, sortType} = req.query;
+  let {searchType, searchTxt, sortType, openYn} = req.query;
   if(searchTxt == null || searchTxt == undefined){ searchTxt = ''; }
 
-  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt + ' , sortType: ' + sortType)
+  console.log('전달받은 데이터: ' + searchType + ' , ' + searchTxt + ' , sortType: ' + sortType + ' , openYn: ' + openYn)
 
   // const selectSql = "SELECT *, open_date as openDate, image_file as imageFile FROM movie_info WHERE del_yn = 'N' ";
   let query = "SELECT *, open_date as openDate, image_file as imageFile, image_url as imageUrl FROM movie_info WHERE del_yn = 'N' ";
+  if (openYn) { query += ` AND openYn = '${openYn}'`; }
 
   // 검색 조건 추가
     if (searchType === 'title') {
@@ -165,7 +167,7 @@ app.get('/api/images', (req, res) => {
 // 영화 목록 등록 쿼리
 app.post('/api/images', (req, res) => {
   // 파라미터 세팅
-  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
+  const { title, rating, genre, cookieYn, openYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
 
 console.log('📥 받은 데이터:', req.body);
   console.log('📌 image_file:', image_file);
@@ -177,7 +179,7 @@ console.log('📥 받은 데이터:', req.body);
   console.log('📦 전달된 데이터:', { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file });
 
   // 쿼리 실행
-  db.query(insertSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url], (err, result) => {
+  db.query(insertSql, [title, rating, genre, cookieYn, openYn, open_date, show_time, director, actor, story, trailer, image_file, image_url], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
@@ -196,7 +198,7 @@ console.log('📥 받은 데이터:', req.body);
 app.put('/api/images/:id', (req, res) => {
   // 파라미터 세팅
   const { id } = req.params;
-  const { title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
+  const { title, rating, genre, cookieYn, openYn, open_date, show_time, director, actor, story, trailer, image_file, image_url } = req.body;
 
   // 쿼리 로그 출력
   console.log('📝 실행할 쿼리:', updateSql);
@@ -209,7 +211,7 @@ app.put('/api/images/:id', (req, res) => {
   }
 
   // 쿼리 실행 
-  db.query(updateSql, [title, rating, genre, cookieYn, open_date, show_time, director, actor, story, trailer, image_file, image_url, id], (err, result) => {
+  db.query(updateSql, [title, rating, genre, cookieYn, openYn, open_date, show_time, director, actor, story, trailer, image_file, image_url, id], (err, result) => {
     if (err) {
       console.error('❌ 쿼리 에러:', err);
       return res.status(500).json({ error: err.message });
@@ -849,14 +851,33 @@ app.delete('/api/academy/:id', (req, res) => {
   });
 });
 
-// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+// ------------------------------- 스케줄러 설정 ---------------------------------
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+// 서버 시작 시 1회 즉시 실행 (배포 직후 밀린 데이터 처리)
+const updateOpenYnSql = "UPDATE movie_info SET openYn = 'Y' WHERE open_date <= CURDATE() AND openYn = 'N' AND del_yn = 'N'";
+db.query(updateOpenYnSql, (err, result) => {
+  if (err) { console.error('❌ openYn 초기 업데이트 에러:', err); return; }
+  console.log(`✅ openYn 초기 업데이트 완료 | 영향받은 행: ${result.affectedRows}`);
+});
+
+// 매일 자정(00:00)에 개봉일이 지난 영화의 openYn을 'Y'로 자동 업데이트
+cron.schedule('0 0 * * *', () => {
+  db.query(updateOpenYnSql, (err, result) => {
+    if (err) { console.error('❌ openYn 자동 업데이트 에러:', err); return; }
+    console.log(`✅ openYn 자동 업데이트 완료 | 영향받은 행: ${result.affectedRows}`);
+  });
+}, { timezone: 'Asia/Seoul' });
 
 // 서버 로그
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`서버가 ${PORT}번 포트에서 실행중...`);
 });
-
+// @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
 
