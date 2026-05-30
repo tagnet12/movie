@@ -953,3 +953,9 @@ app.post('/api/upload-image', upload.single('image'), (req, res) => {
 });
 
 // @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+// UptimeRobot이 깨우러 올 때 200 OK를 던져주는 헬스체크 경로
+app.get('/health', (req, res) => {
+    res.status(200).send('Cinepark server is running!');
+});
